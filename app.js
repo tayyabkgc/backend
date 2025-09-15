@@ -65,15 +65,15 @@ app.use('/uploads/media/', express.static(`${__dirname}/uploads/media/`));
 
 app.get('/api/uploads/images/:imageName', (req, res) => {
   const { imageName } = req.params;
-   // Check if the image exists
-   const imagePath = path.join(__dirname, 'uploads', 'images', imageName);
-   if (fs.existsSync(imagePath)) {
-     // Image exists, send it as a response
-     res.sendFile(imagePath);
-   } else {
-     // Image does not exist, return a 404 error
-     res.status(404).json({ error: 'Image not found' });
-   }
+  // Check if the image exists
+  const imagePath = path.join(__dirname, 'uploads', 'images', imageName);
+  if (fs.existsSync(imagePath)) {
+    // Image exists, send it as a response
+    res.sendFile(imagePath);
+  } else {
+    // Image does not exist, return a 404 error
+    res.status(404).json({ error: 'Image not found' });
+  }
 });
 
 // app.use(errorHandler);
