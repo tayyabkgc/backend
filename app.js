@@ -26,16 +26,16 @@ connectDB();
 
 startCronJobs();
 
-app.use(
-  cors({
-    origin: [
-      process.env.FRONTEND_BASE_URL,
-      process.env.FRONTEND_ADMIN_BASE_URL,
-    ],
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    credentials: true,
-  })
-);
+// app.use(
+//   cors({
+//     origin: [
+//       process.env.FRONTEND_BASE_URL,
+//       process.env.FRONTEND_ADMIN_BASE_URL,
+//     ],
+//     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+//     credentials: true,
+//   })
+// );
 
 app.use(
   session({
