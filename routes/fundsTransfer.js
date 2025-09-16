@@ -7,6 +7,11 @@ const {
   validateCompleteFundTransferValidation
 } = require("../middleware/validations/fundsTransfer");
 
+
+router.get('/test', (req, res) => {
+  res.json({ success: true, message: 'fundsTransfer test works' });
+});
+
 router.post(
   "/",
   //  checkIfAuthenticated,

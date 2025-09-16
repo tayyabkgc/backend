@@ -26,6 +26,8 @@ connectDB();
 
 startCronJobs();
 
+app.use(cors({ origin: "*" }));
+
 // app.use(
 //   cors({
 //     origin: [
