@@ -42,7 +42,7 @@ class AuthController {
       const userExists = await User.findOne({
         $or: [
           { walletAddress: { $regex: new RegExp('^' + walletAddress + '$', 'i') } },
-          { phoneNumber: formatPhone },
+          // { phoneNumber: formatPhone },
           { userName: userName },
           { email: email }
         ]
