@@ -19,6 +19,7 @@ if (process.env.APP_ENV === 'production') {
 // const marketEventListener=require('./contract/marketEventListener');
 // const KGCEventListener=require("./contract/kgcEventListener");
 const fs = require("fs");
+const { listenTokenSales } = require("./contract/tokenSaleListener");
 require('./seeders');
 
 const app = express();
@@ -93,6 +94,8 @@ app.use(function (req, res, next) {
 //   process.env.KGC_CONTRACT_ADDRESS
 // );
 
+
+listenTokenSales();
 
 // error handler
 app.use(function (err, req, res, next) {

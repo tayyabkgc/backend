@@ -21,6 +21,7 @@
     "debug": "~2.6.9",
     "dotenv": "^16.3.2",
     "ejs": "^3.1.9",
+    "ethers": "^6.15.0",
     "express": "~4.16.1",
     "express-joi-validate": "^3.0.1",
     "express-session": "^1.17.3",
