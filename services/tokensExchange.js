@@ -2,7 +2,7 @@ const TokenExchange = require("../models/tokenExchange.model");
 const Transaction = require("../models/transaction.model");
 const { ObjectId } = require("mongoose").Types;
 const createPaginator = require("../helpers/paginate");
-const { TRANSACTION_STATUS, EXCHANGE_TYPES } = require("../config/constants");
+const { TRANSACTION_STATUS, EXCHANGE_TYPES, TRANSACTION_TYPES } = require("../config/constants");
 const socket = require("../helpers/sockets");
 const User = require("../models/user.model");
 const { ethers } = require("ethers");
@@ -195,7 +195,7 @@ async function syncTokenSaleFromChain(saleData, receipt) {
     const newTransaction = new Transaction({
       userId: dbUser._id,
       txHash,
-      type: "sellToken",   // ✅ make sure this matches your constants
+      type: TRANSACTION_TYPES.REGISTER,
       cryptoAmount,
       fiatAmount,
       status: "completed",

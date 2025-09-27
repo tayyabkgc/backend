@@ -1,39 +1,51 @@
-const { ethers } = require("ethers");
+const Web3 = require("web3");
 const conractInfo = require("./contractInfo");
 const { syncTokenSaleFromChain } = require("../services/tokensExchange");
-const provider = new ethers.JsonRpcProvider(process.env.CHAIN_STACK_SOCKET_URL);
 
-const contract = new ethers.Contract(conractInfo.register.address, conractInfo.register.registerAbi, provider);
+// 👇 Use WSS endpoint here
+const web3 = new Web3(new Web3.providers.WebsocketProvider(process.env.CHAINSTACK_WSS_URL));
+
+
+const contract = new web3.eth.Contract(
+  conractInfo.register.registerAbi,
+  conractInfo.register.address
+);
 
 const listenTokenSales = () => {
-    contract.on("KGCSold", async (seller, kgcAmount, usdtAmount, event) => {
-        try {
-            // Get tx hash from the log
-            const txHash = event.log.transactionHash;
+  contract.events.KGCSold({})
+    .on("connected", (subscriptionId) => {
+      console.log("🔗 Subscribed with ID:", subscriptionId);
+    })
+    .on("data", async (event) => {
+      try {
+        const { returnValues, transactionHash, blockNumber } = event;
+        const { seller, kgcAmount, usdtAmount } = returnValues;
 
-            // Optional: fetch full receipt
-            const receipt = await event.getTransactionReceipt();
+        // Fetch receipt & block for timestamp
+        const receipt = await web3.eth.getTransactionReceipt(transactionHash);
+        const block = await web3.eth.getBlock(blockNumber);
 
-            // Build clean event data
-            const saleData = {
-                seller: seller.toLowerCase(),
-                amount: kgcAmount.toString(),   // BigInt → string
-                price: usdtAmount.toString(),   // BigInt → string
-                txHash,
-                blockNumber: event.log.blockNumber,
-                timestamp: (await event.getBlock()).timestamp, // fetch block time
-            };
+        const saleData = {
+          seller: seller.toLowerCase(),
+          amount: kgcAmount.toString(),
+          price: usdtAmount.toString(),
+          txHash: transactionHash,
+          blockNumber,
+          timestamp: block.timestamp,
+        };
 
-            console.log("✅ Parsed KGCSold Event:", saleData);
+        console.log("✅ Parsed KGCSold Event:", saleData);
 
-            // Save to DB
-            await syncTokenSaleFromChain(saleData, receipt);
-
-        } catch (err) {
-            console.error("❌ Error handling KGCSold event:", err);
-        }
+        await syncTokenSaleFromChain(saleData, receipt);
+      } catch (err) {
+        console.error("❌ Error handling KGCSold event:", err);
+      }
+    })
+    .on("error", (err) => {
+      console.error("❌ Subscription error:", err);
     });
-    console.log("👂 Listening for TokenSold events on contract:", conractInfo.register.address);
+
+  console.log("👂 Listening for KGCSold events on contract:", conractInfo.register.address);
 };
 
 module.exports = { listenTokenSales };
