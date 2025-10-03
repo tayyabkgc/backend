@@ -439,7 +439,7 @@ const activePendingReferralList = async (
   userName // 👈 NEW: search filter for userName
 ) => {
   try {
-    console.log("userName2",userName)
+    console.log("userName2", userName)
     const result = await TeamMember.aggregate([
       {
         $match: {
@@ -465,40 +465,40 @@ const activePendingReferralList = async (
       // Optional filter: user.status
       ...(status
         ? [
-            {
-              $match: {
-                "user.status": status,
-              },
+          {
+            $match: {
+              "user.status": status,
             },
-          ]
+          },
+        ]
         : []),
 
       // Optional filter: userName (case-insensitive partial match)
       ...(userName
         ? [
-            {
-              $match: {
-                "user.userName": {
-                  $regex: userName,
-                  $options: "i",
-                },
+          {
+            $match: {
+              "user.userName": {
+                $regex: userName,
+                $options: "i",
               },
             },
-          ]
+          },
+        ]
         : []),
 
       // Optional filter: createdAt date range
       ...(startDate && endDate
         ? [
-            {
-              $match: {
-                "user.createdAt": {
-                  $gte: new Date(startDate),
-                  $lte: new Date(endDate),
-                },
+          {
+            $match: {
+              "user.createdAt": {
+                $gte: new Date(startDate),
+                $lte: new Date(endDate),
               },
             },
-          ]
+          },
+        ]
         : []),
 
       // Lookup stakes
@@ -625,13 +625,12 @@ const activePendingReferralList = async (
 
 
 
-const getIncomeLevelCheck   = async ( incomeLevel, directReferral, directReferralBussiness) => {
+const getIncomeLevelCheck = async (incomeLevel, directReferral, directReferralBussiness) => {
   let incomeLevelFulfill = false;
-   if (incomeLevel.minLevel === 2 &&
+  if (incomeLevel.minLevel === 2 &&
     directReferral >= incomeLevel?.directReferral &&
     directReferralBussiness >= incomeLevel?.directBussiness
-  )
-  {
+  ) {
     incomeLevelFulfill = true;
   }
 
@@ -676,8 +675,8 @@ const referralIncomeLevel = async (teamId, userID, status) => {
       );
 
       const userDetails = await User.findById(userID);
-       const thirtyDaysAdd = momentToAdd(30, 'days', userDetails?.createdAt);
-      secondLevelDirectReferral = await numOfReferralsWithIn30Days(teamId, 1,thirtyDaysAdd );
+      const thirtyDaysAdd = momentToAdd(30, 'days', userDetails?.createdAt);
+      secondLevelDirectReferral = await numOfReferralsWithIn30Days(teamId, 1, thirtyDaysAdd);
       secondLevelDirectReferralBussiness = await numOfReferralBussinessWithIn30Days(teamId, 1, thirtyDaysAdd);
 
       getMembersLevel = await Promise.all(
@@ -702,20 +701,20 @@ const referralIncomeLevel = async (teamId, userID, status) => {
     const allIncomeLevels = await getAllIncomeLevels();
 
     const incomeLevelBonus = allIncomeLevels.map((level) => {
-    const { minLevel, maxLevel } = level;
-    const filteredRecords = getMembersLevel.filter(record => record.level >= minLevel && record.level <= maxLevel);
-    // Map the filtered records to include only the required fields (level and log)
-    const selectedRecords = filteredRecords.map(record => ({ level: record.level, log: record.log }));
-    const matchingLog = selectedRecords.some(record => record.log === true);
+      const { minLevel, maxLevel } = level;
+      const filteredRecords = getMembersLevel.filter(record => record.level >= minLevel && record.level <= maxLevel);
+      // Map the filtered records to include only the required fields (level and log)
+      const selectedRecords = filteredRecords.map(record => ({ level: record.level, log: record.log }));
+      const matchingLog = selectedRecords.some(record => record.log === true);
       const isUnlocked = teamId && matchingLog &&
-      level.minLevel === 2 &&
-      secondLevelDirectReferral >= (level.directReferral || 0) &&
-      secondLevelDirectReferralBussiness >= (level.directBussiness || 0);
+        level.minLevel === 2 &&
+        secondLevelDirectReferral >= (level.directReferral || 0) &&
+        secondLevelDirectReferralBussiness >= (level.directBussiness || 0);
 
       return {
         ...level.toObject(),
         rewardPercentage: isUnlocked ? level?.maximumRewardPercentage : level?.minimumRewardPercentage,
-         unlocked: isUnlocked ? true : matchingLog
+        unlocked: isUnlocked ? true : matchingLog
       }
     });
 
@@ -727,7 +726,7 @@ const referralIncomeLevel = async (teamId, userID, status) => {
       accountActiveDays: `${accountActiveDays}/${secondIncomeLevel?.activationDays}` || 0,
       directActiveReferrals: `${secondLevelDirectReferral}/${secondIncomeLevel?.directReferral}` || 0,
       allActiveReferrals: `${activeID?.length || 0}/${allReferral}`,
-      directBusinessIn30Days:`${secondLevelDirectReferralBussiness}/${secondIncomeLevel?.directBussiness}` || 0 ,
+      directBusinessIn30Days: `${secondLevelDirectReferralBussiness}/${secondIncomeLevel?.directBussiness}` || 0,
       isUnlock: secondLevelIncomeCheck
     };
 
@@ -764,7 +763,7 @@ const stakeAmountTaken = async (userId, stakeDate) => {
       {
         $match: {
           userId: new ObjectId(userId),
-          createdAt:{ $gte: new Date(stakeDate) }
+          createdAt: { $gte: new Date(stakeDate) }
         },
       },
       {
@@ -778,7 +777,7 @@ const stakeAmountTaken = async (userId, stakeDate) => {
       {
         $match: {
           userId: new ObjectId(userId),
-          createdAt:{ $gte: new Date(stakeDate) }
+          createdAt: { $gte: new Date(stakeDate) }
         },
       },
       {
@@ -799,12 +798,11 @@ const stakeAmountTaken = async (userId, stakeDate) => {
   }
 };
 
-const handleCappingEvent = async (userId, date=null) => {
+const handleCappingEvent = async (userId, date = null) => {
   try {
     if (!userId) {
       return { cappingAmount: 0, cappingFormula: 0, earnAmount: 0, rewardPercentage: 0, isCappingReached: true };
     }
-
     const normalCapping = await getSettingWithKey(SETTING.NORMAL_CAPPING);
     const marketCapping = await getSettingWithKey(SETTING.MARKET_CAPPING);
     const stakeRewardPerDay = await getSettingWithKey(SETTING.STAKE_REWARD_PER_DAY);
@@ -826,16 +824,16 @@ const handleCappingEvent = async (userId, date=null) => {
         },
       },
     ]);
-
     const totalActiveStakeAmount =
       stakingAmount.length > 0 ? stakingAmount[0].totalAmount : 0;
     const cappingAmount = totalActiveStakeAmount * cappingFormula;
-    const oldestStaking = await Stake.findOne({ userId: new ObjectId(userId),status: DEFAULT_STATUS.ACTIVE, endDate: { $gte: new Date(date || Date.now()) }}).sort({ createdAt: 1 }).limit(1);
+    const oldestStaking = await Stake.findOne({ userId: new ObjectId(userId), status: DEFAULT_STATUS.ACTIVE, endDate: { $gte: new Date(date || Date.now()) } }).sort({ createdAt: 1 }).limit(1);
     const earnAmount = await stakeAmountTaken(userId, new Date(oldestStaking?.createdAt || Date.now()));
+   
     const rewardPercentage = stakeRewardPerDay;
     const isCappingReached = earnAmount >= cappingAmount;
-    if(isCappingReached){
-      await getStakeExpiry(new ObjectId(userId));
+    if (isCappingReached) {
+      await getStakeExpiry(new ObjectId(userId),oldestStaking?._id);
       await User.findOneAndUpdate(
         { _id: new ObjectId(userId) },
         {
@@ -892,7 +890,7 @@ const getLeadershipBonus = async (userId, page, limit) => {
           newRoot: {
             date: "$createdAt",
             rankTitle: { $ifNull: ["$rank.title", null] },
-            userRankStars:{ $ifNull: ["$user.userRankId", 0] },
+            userRankStars: { $ifNull: ["$user.userRankId", 0] },
             totalBonus: { $ifNull: ["$amount", 0] },
           },
         },
@@ -927,22 +925,83 @@ const getStakeBonus = async (userId, page, limit) => {
     const limitValue = parseInt(limit);
 
     // Calculate the total reward amount for the user
-const totalRewardAmount = await stakingRewardAmount(userId);
+    const totalRewardAmount = await stakingRewardAmount(userId);
     const userStakeReward =
-    await UserStakeReward.aggregate([
-      {
-        $match: { userId: new ObjectId(userId) },
-      },
-      {
-        $lookup: {
-          from: "stakes",
-          localField: "stakeId",
-          foreignField: "_id",
-          as: "stake", // Alias for the joined field
+      await UserStakeReward.aggregate([
+        {
+          $match: { userId: new ObjectId(userId) },
         },
-      },
+        {
+          $lookup: {
+            from: "stakes",
+            localField: "stakeId",
+            foreignField: "_id",
+            as: "stake", // Alias for the joined field
+          },
+        },
+        {
+          $unwind: { path: "$stake", preserveNullAndEmptyArrays: true },
+        },
+        {
+          $group: {
+            _id: {
+              stakeId: "$stakeId",
+              createdAt: {
+                $dateToString: {
+                  format: "%Y-%m-%d", // Format to group by year-month-day
+                  date: "$createdAt",
+                },
+              },
+            },
+            totalRewardAmount: {
+              $sum: { $toDouble: { $ifNull: ["$amount", 0] } },
+            }, // Sum the amounts of rewards
+            stakeAmount: { $first: "$stake.amount" },
+            percent: { $first: "$stake.rewardPercentage" },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            stakeId: "$_id.stakeId", // Include stakeId in the output
+            createdAt: "$_id.createdAt", // Include createdAt field in the output
+            totalRewardAmount: 1,
+            stakeAmount: 1,
+            percent: 1,
+          },
+        },
+        {
+          $sort: {
+            createdAt: -1,
+          },
+        },
+        {
+          $skip: skip,
+        },
+        {
+          $limit: limitValue,
+        },
+        {
+          $group: {
+            _id: null, // Group all documents together
+            count: { $sum: 1 }, // Count the documents
+            results: { $push: "$$ROOT" } // Store the results in an array
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            count: 1,
+            results: 1
+          }
+        }
+      ]);
+
+    const pipeline = [
       {
-        $unwind: { path: "$stake", preserveNullAndEmptyArrays: true },
+        $match: {
+          userId: new ObjectId(userId)
+        }
       },
       {
         $group: {
@@ -955,77 +1014,16 @@ const totalRewardAmount = await stakingRewardAmount(userId);
               },
             },
           },
-          totalRewardAmount: {
-            $sum: { $toDouble: { $ifNull: ["$amount", 0] } },
-          }, // Sum the amounts of rewards
-          stakeAmount: { $first: "$stake.amount" },
-          percent: { $first: "$stake.rewardPercentage" },
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          stakeId: "$_id.stakeId", // Include stakeId in the output
-          createdAt: "$_id.createdAt", // Include createdAt field in the output
-          totalRewardAmount: 1,
-          stakeAmount: 1,
-          percent: 1,
-        },
-      },
-      {
-        $sort: {
-          createdAt: -1,
-        },
-      },
-      {
-        $skip: skip,
-      },
-      {
-        $limit: limitValue,
-      },
-      {
-        $group: {
-          _id: null, // Group all documents together
-          count: { $sum: 1 }, // Count the documents
-          results: { $push: "$$ROOT" } // Store the results in an array
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          count: 1,
-          results: 1
+          count: { $sum: 1 } // Count the number of documents in each group
         }
-      }
-    ]);
-
-const pipeline = [
-  {
-    $match: {
-      userId: new ObjectId(userId)
-    }
-  },
-  {
-    $group: {
-      _id: {
-        stakeId: "$stakeId",
-        createdAt: {
-          $dateToString: {
-            format: "%Y-%m-%d", // Format to group by year-month-day
-            date: "$createdAt",
-          },
-        },
       },
-      count: { $sum: 1 } // Count the number of documents in each group
-    }
-  },
-  {
-    $count: "totalDocuments" // Count the total number of documents
-  }
-];
-const total = await UserStakeReward.aggregate(pipeline);
+      {
+        $count: "totalDocuments" // Count the total number of documents
+      }
+    ];
+    const total = await UserStakeReward.aggregate(pipeline);
 
-    return { userStakeReward:userStakeReward[0]?.results || [], totalRewardAmount, total:total[0]?.totalDocuments };
+    return { userStakeReward: userStakeReward[0]?.results || [], totalRewardAmount, total: total[0]?.totalDocuments };
   } catch (err) {
     console.log(err);
     return err;
@@ -1195,7 +1193,7 @@ const getInstantBonus = async (userId, page, limit) => {
     return err;
   }
 };
-const stakingRewardAmount = async(userId) => {
+const stakingRewardAmount = async (userId) => {
   try {
     const totalRewardAggregate = await UserStakeReward.aggregate([
       {
@@ -1221,18 +1219,19 @@ const stakingRewardAmount = async(userId) => {
       totalRewardAggregate.length > 0
         ? totalRewardAggregate[0].totalRewardAmount
         : 0;
-        return totalRewardAmount;
-} catch (err) {
-  console.log(err);
-  return err;
-}
+    return totalRewardAmount;
+  } catch (err) {
+    console.log(err);
+    return err;
+  }
 }
 
-const referralLevelAmount = async(userId, type) => {
+const referralLevelAmount = async (userId, type) => {
   try {
     const totalRewardAggregate = await UserOtherReward.aggregate([
       {
-        $match: { userId,type: type
+        $match: {
+          userId, type: type
         },
       },
       {
@@ -1255,29 +1254,29 @@ const referralLevelAmount = async(userId, type) => {
       totalRewardAggregate.length > 0
         ? totalRewardAggregate[0].totalRewardAmount
         : 0;
-        return totalRewardAmount;
-} catch (err) {
-  console.log(err);
-  return err;
-}
+    return totalRewardAmount;
+  } catch (err) {
+    console.log(err);
+    return err;
+  }
 }
 
-const getStakeExpiry = async (userID) => {
-  try{
-  return await Stake.findOneAndUpdate(
-    { userId: userID },
-    {
-      $set: {
-        cappingReached: true,
-        status: DEFAULT_STATUS.INACTIVE
-      }
-    },
-    { new: true }
-  );
-} catch (err) {
-  console.log(err);
-  return err;
-}
+const getStakeExpiry = async (userID,stakingID) => {
+  try {
+    return await Stake.findOneAndUpdate(
+      { userId: userID,_id:stakingID },
+      {
+        $set: {
+          cappingReached: true,
+          status: DEFAULT_STATUS.INACTIVE
+        }
+      },
+      { new: true }
+    );
+  } catch (err) {
+    console.log(err);
+    return err;
+  }
 };
 
 const getMissingIncomeReward = async (incomingStakeRewards = [], date = '') => {
@@ -1419,7 +1418,7 @@ const numOfReferralsWithIn30Days = async (teamId, level, date) => {
       createdAt: {
         $lt: date
       }
-        });
+    });
     return teamMember;
   } catch (err) {
     console.log(err);
