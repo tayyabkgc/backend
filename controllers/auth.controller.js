@@ -42,7 +42,6 @@ class AuthController {
       const userExists = await User.findOne({
         $or: [
           { walletAddress: { $regex: new RegExp('^' + walletAddress + '$', 'i') } },
-          // { phoneNumber: formatPhone },
           { userName: userName },
           { email: email }
         ]
@@ -62,8 +61,7 @@ class AuthController {
           role,
           password,
           walletAddress,
-          referredBy,
-          phoneNumber,
+          referredBy
         });
         jwt.sign({ email: newUser.email }, process.env.JWT_SECRET_STRING);
         response.success = true;

@@ -15,7 +15,7 @@ const signupValidation = {
     role: Joi.string().required(),
     amount: Joi.string().optional().allow(""),
     tokens: Joi.string().optional().allow(""),
-   phoneNumber: Joi.string().optional().allow(""),
+    phoneNumber: Joi.string().optional().allow(""),
     password: Joi.string()
       .min(6)
       .required()

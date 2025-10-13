@@ -113,6 +113,11 @@ const userSchema = new mongoose.Schema(
     },
     phoneNumber: {
       type: String,
+      trim: true,
+      unique: true,
+      lowercase: true,
+      sparse: true,
+      index: true,
       required: false,
       // validate: [validatePhone, "Please fill a valid phone nnumber!!"],
     },
